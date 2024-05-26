@@ -20,9 +20,13 @@ spring:
     url: jdbc:mysql://localhost:3306/hello?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
     username: root
     password: 111111
+  devtools:
+    restart:
+      enabled: true
 management:
   endpoints:
     web:
       exposure:
         include: beans
+
 

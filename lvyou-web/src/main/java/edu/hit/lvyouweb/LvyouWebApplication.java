@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScans;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "edu.hit")
-@MapperScan(basePackages = "edu.hit")
+@MapperScan(basePackages = "edu.hit.mapper")
 public class LvyouWebApplication {
 
     public static void main(String[] args) {

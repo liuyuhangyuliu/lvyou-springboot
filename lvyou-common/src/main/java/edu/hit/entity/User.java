@@ -1,16 +1,17 @@
 package edu.hit.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @TableName("user")
 @Data
+//setter返回此对象，可以链式调用setter
+@Accessors(chain = true)
 public class User extends Model<User> {
 
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Long uid;
     private String username;
     private String email;
@@ -19,7 +20,6 @@ public class User extends Model<User> {
     private String coverSrc;
     @TableField("avatarSrc")
     private String avatarSrc;
-
     private String salt;
 
 
