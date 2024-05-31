@@ -29,4 +29,7 @@ management:
       exposure:
         include: beans
 
-
+jwt:
+  secret: lvyou
+  access_expiration: 30 * 60 * 1000 #半小时
+  refresh_expiration: 7 * 24 * 60 * 60 * 1000 #一周

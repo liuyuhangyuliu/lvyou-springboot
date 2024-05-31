@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
+import static edu.hit.utils.StatusCode.*;
+
 @RestController
 @RequestMapping("/api/user")
 public class LoginController {
@@ -45,25 +47,24 @@ public class LoginController {
 
         User user;
 
-        //FIXME:因该把逻辑写到Service层，解耦
+        //FIXME:应该把逻辑写到Service层，解耦
         if(StringUtils.hasText(username) && StringUtils.hasText(password)){
             try{
                 Subject subject = SecurityUtils.getSubject();
-                //Session session = subject.getSession();
+
                 UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username, password);
                 subject.login(usernamePasswordToken);
 
                 QueryWrapper<User> queryWrapper = new QueryWrapper<>();
                 user = userService.getOne(queryWrapper.eq("username",username));
 
-                //session.setAttribute("user",user);
 
                 return new Response(StatusCode.OK.setMsg("登陆成功"),user);
 
             }
             //不应该分开提示，提高安全性
             catch(UnknownAccountException | IncorrectCredentialsException e){
-                return new Response(StatusCode.ERROR.set("A011","用户名或密码错误！"),null);
+                return new Response(StatusCode.ERROR.set(WRONG_USERNAME_PWD,"用户名或密码错误！"),null);
             }catch (AuthenticationException ae){
                 return new Response(StatusCode.ERROR.set("A012",ae.getMessage()),null);
             }

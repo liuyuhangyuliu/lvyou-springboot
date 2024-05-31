@@ -1,4 +1,4 @@
-package edu.hit;
+package edu.hit.config;
 
 
 import edu.hit.customRealm.PasswordRealm;
