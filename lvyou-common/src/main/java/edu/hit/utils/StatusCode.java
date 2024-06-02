@@ -22,7 +22,9 @@ public enum StatusCode {
     public static final String EMPTY_USERNAME_PWD = "A013";
     public static final String USERNAME_EXISTS = "A014";
     public static final String REGISTER_ERROR = "A015";
-
+    public static final String EXPIRED_ACCESS_TOKEN = "A016";
+    public static final String UNSUPPORTED_TOKEN = "A017";
+    public static final String BAD_SIGNATURE_TOKEN = "A018";
     private String code;
 
     private String msg;

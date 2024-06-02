@@ -6,12 +6,9 @@ import edu.hit.utils.Response;
 import edu.hit.utils.StatusCode;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import static edu.hit.utils.StatusCode.*;
 
 @RestControllerAdvice
 @Slf4j
@@ -31,15 +28,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(JwtException.class)
-   public Response jwtExceptionHandler(JwtException e){
-        log.error(e.getMessage());
+    public Response jwtExceptionHandler(JwtException e){
+        String message = e.getMessage();
+        log.error(message);
+
+        StatusCode error = StatusCode.ERROR;
         if(e instanceof ExpiredJwtException){
-
+            error = error.set(EXPIRED_ACCESS_TOKEN,message);
         }else if (e instanceof UnsupportedJwtException){
-
+            error = error.set(UNSUPPORTED_TOKEN,message);
         }else if(e instanceof SignatureException){
-
+            error = error.set(BAD_SIGNATURE_TOKEN,message);
         }
-        return new Response(StatusCode.ERROR.set("A",e.getMessage()),null);
+        return new Response(error,null);
    }
 }

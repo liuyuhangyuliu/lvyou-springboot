@@ -24,16 +24,22 @@ public class JwtUtil {
     private static final String CLAIM_KEY_USERNAME = "username";
     private static final String CLAIM_KEY_CREATED = "created";
 
-    @Value("${jwt.secret}")
-    private String secret;
-    @Value("${jwt.access_expiration}")
-    private Long access_expiration;
-    @Value("${jwt.refresh_expiration}")
-    private Long refresh_expiration;
+
+    private static String secret;
+    private static Long access_expiration;
+    private static Long refresh_expiration;
+
+    public JwtUtil(@Value("${jwt.secret}")String secret1,
+                   @Value("${jwt.access_expiration}")Long access_expiration1,
+                   @Value("${jwt.refresh_expiration}")Long refresh_expiration1){
+        this.secret = secret1;
+        this.access_expiration = access_expiration1;
+        this.refresh_expiration = refresh_expiration1;
+    }
 
 
 
-    public String createToken(String username) {
+    public static String createToken(String username) {
         HashMap<String, Object> claims = new HashMap<>();
         claims.put(CLAIM_KEY_USERNAME, username);
         claims.put(CLAIM_KEY_CREATED, new Date());
@@ -41,7 +47,7 @@ public class JwtUtil {
     }
 
 
-    public String getUsernameFromToken(String token) {
+    public static String getUsernameFromToken(String token) {
         String username = "";
         try {
             Claims claims = getClaimsFromToken(token);
@@ -54,30 +60,20 @@ public class JwtUtil {
     }
 
 
-    private Claims getClaimsFromToken(String token) {
+    private static Claims getClaimsFromToken(String token) {
         Claims claims = null;
-        try {
-            claims = Jwts.parser()
+
+        claims = Jwts.parser()
                     .setSigningKey(secret)
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (ExpiredJwtException e) {
-            e.printStackTrace();
-        } catch (UnsupportedJwtException e) {
-            e.printStackTrace();
-        } catch (MalformedJwtException e) {
-            e.printStackTrace();
-        } catch (SignatureException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+
         return claims;
     }
 
 
 
-    private String createToken(Map<String, Object> claims,Long expiration) {
+    private static String createToken(Map<String, Object> claims, Long expiration) {
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -89,26 +85,26 @@ public class JwtUtil {
 
 
 
-    public boolean validateToken(String token, Subject subject) {
+    public static boolean validateToken(String token, Subject subject) {
 
         String username = getUsernameFromToken(token);
         return username.equals(subject.getPrincipal()) && !isTokenExpired(token);
     }
 
 
-    private boolean isTokenExpired(String token) {
-        Date expiredDate = getExpiredDateFeomToken(token);
+    private static boolean isTokenExpired(String token) {
+        Date expiredDate = getExpiredDateFromToken(token);
         return expiredDate.before(new Date());
     }
 
 
-    private Date getExpiredDateFeomToken(String token) {
+    private static Date getExpiredDateFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return claims.getExpiration();
     }
 
 
-    public boolean canBeRefreshed(String token){
+    public static boolean canBeRefreshed(String token){
         return !isTokenExpired(token);
     }
 
