@@ -15,6 +15,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The type Jwt util.
+ */
 //注册组件
 @Component
 @Data
@@ -58,6 +61,11 @@ public class JwtUtil {
         }
         return username;
     }
+
+    /**
+    * 全局异常处理器处理异常
+     */
+
 
 
     private static Claims getClaimsFromToken(String token) {
