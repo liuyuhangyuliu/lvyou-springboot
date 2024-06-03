@@ -2,6 +2,7 @@ package edu.hit.utils;
 
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,120 +10,95 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+
+import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * The type Jwt util.
  */
 //注册组件
-@Component
 @Data
 @Slf4j
+@Component
 public class JwtUtil {
 
     private static final String CLAIM_KEY_USERNAME = "username";
     private static final String CLAIM_KEY_CREATED = "created";
+    private static final String JWT_ISS = "liuyuhang";
 
 
-    private static String secret;
-    private static Long access_expiration;
+
+    private static String secret ;
+    private static Long access_expiration ;
     private static Long refresh_expiration;
 
-    public JwtUtil(@Value("${jwt.secret}")String secret1,
+    JwtUtil(       @Value("${jwt.secret}")String secret1,
                    @Value("${jwt.access_expiration}")Long access_expiration1,
                    @Value("${jwt.refresh_expiration}")Long refresh_expiration1){
-        this.secret = secret1;
-        this.access_expiration = access_expiration1;
-        this.refresh_expiration = refresh_expiration1;
+        secret = secret1;
+        access_expiration = access_expiration1;
+        refresh_expiration = refresh_expiration1;
     }
 
+    //secretKey不能提出来字段，secret是Value注入的，时机是什么，反正这里初始化secretKey时secret一定是null，
+    //抛异常，最后导致error creating bean
+    //这是最上边的异常，我一直被这个吸引注意力
+    //实际上应该关注最下面的 看caused by cant invoke getBytes 因为nullpointerexception
+    //private static SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes());
 
-
-    public static String createToken(String username) {
-        HashMap<String, Object> claims = new HashMap<>();
-        claims.put(CLAIM_KEY_USERNAME, username);
-        claims.put(CLAIM_KEY_CREATED, new Date());
-        return createToken(claims,access_expiration);
-    }
-
-
-    public static String getUsernameFromToken(String token) {
-        String username = "";
-        try {
-            Claims claims = getClaimsFromToken(token);
-            username = claims.getSubject();
-        } catch (Exception e) {
-            username = null;
-            log.info("error:{}", "用户名未能获取 from token");
-        }
-        return username;
-    }
-
-    /**
-    * 全局异常处理器处理异常
-     */
-
-
-
-    private static Claims getClaimsFromToken(String token) {
-        Claims claims = null;
-
-        claims = Jwts.parser()
-                    .setSigningKey(secret)
-                    .parseClaimsJws(token)
-                    .getBody();
-
-        return claims;
-    }
-
-
-
-    private static String createToken(Map<String, Object> claims, Long expiration) {
+    public static String genAccessToken(String username) {
+        // 令牌id
+        String uuid = UUID.randomUUID().toString();
+        Date exprireDate = Date.from(Instant.now().plusSeconds(access_expiration));
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.ES512, secret)
+                // 设置头部信息header
+                .header()
+                .add("typ", "JWT")
+                .add("alg", "HS256")
+                .and()
+                // 设置自定义负载信息payload
+                .claim("username", username)
+                // 令牌ID
+                .id(uuid)
+                // 过期日期
+                .expiration(exprireDate)
+                // 签发时间
+                .issuedAt(new Date())
+                // 签发者
+                .issuer(JWT_ISS)
+                // 签名
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), Jwts.SIG.HS256)
                 .compact();
     }
-
-
-
-
-    public static boolean validateToken(String token, Subject subject) {
-
-        String username = getUsernameFromToken(token);
-        return username.equals(subject.getPrincipal()) && !isTokenExpired(token);
+    /**
+     * 解析token
+     * @param token token
+     * @return Jws<Claims>
+     */
+    public static Jws<Claims> parseClaim(String token) {
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build()
+                .parseSignedClaims(token);
     }
 
-
-    private static boolean isTokenExpired(String token) {
-        Date expiredDate = getExpiredDateFromToken(token);
-        return expiredDate.before(new Date());
+    public static JwsHeader parseHeader(String token) {
+        return parseClaim(token).getHeader();
     }
 
-
-    private static Date getExpiredDateFromToken(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return claims.getExpiration();
+    public static Claims parsePayload(String token) {
+        return parseClaim(token).getPayload();
     }
-
-
-    public static boolean canBeRefreshed(String token){
-        return !isTokenExpired(token);
-    }
-
-//    //刷新token
-//    public String refreshToken(String token){
-//        Claims claims = getClaimsFromToken(token);
-//        //修改为当前时间
-//        claims.put(CLAIM_KEY_CREATED,new Date());
-//        return createToken(claims);
-//    }
 
 }
 
