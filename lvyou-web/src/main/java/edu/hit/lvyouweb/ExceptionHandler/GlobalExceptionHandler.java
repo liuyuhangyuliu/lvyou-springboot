@@ -5,7 +5,9 @@ import edu.hit.utils.MyException;
 import edu.hit.utils.Response;
 import edu.hit.utils.StatusCode;
 import io.jsonwebtoken.*;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import static edu.hit.utils.StatusCode.*;
@@ -25,6 +27,18 @@ public class GlobalExceptionHandler {
     public Response myExceptionHandler(MyException e){
         log.info(e.getMsg());
         return new Response(StatusCode.ERROR.set(e.getCode(), e.getMsg()), null);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+     public Response methodArgumentNotValidException(MethodArgumentNotValidException e){
+        log.debug(e.getMessage());
+        return new Response(ERROR.setMsg(e.getMessage()),null);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Response ConstraintViolationExceptionHandler(ConstraintViolationException e){
+        log.debug(e.getMessage());
+        return new Response(ERROR.set(TABLE_FIELD_IS_EMPTY,"字段为空"),null);
     }
 
     @ExceptionHandler(JwtException.class)

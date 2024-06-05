@@ -2,36 +2,50 @@ package edu.hit.lvyouweb.controller;
 
 
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.hit.utils.*;
 import edu.hit.entity.User;
-import edu.hit.utils.StatusCode;
-import edu.hit.utils.Response;
+import edu.hit.entity.UserBO;
 import edu.hit.service.UserService;
+import edu.hit.utils.token.MailLoginToken;
+import edu.hit.utils.token.MailRegisterToken;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
 import static edu.hit.utils.StatusCode.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/user")
 public class LoginController {
 
+    @Value("${jwt.userBO_in_Redis_expiration}")
+    private Long USERBO_IN_REDIS_EXPIRATION;
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "000",description = "登陆成功"),
@@ -41,7 +55,7 @@ public class LoginController {
     })
     @PostMapping("/login")
     //TODO 后端参数的校验
-    public Response login(@RequestBody HashMap<String, String> params, HttpSession httpSession){
+    public Response login(@RequestBody HashMap<String, String> params){
         String username = params.get("username");
         String password = params.get("password");
 
@@ -52,14 +66,21 @@ public class LoginController {
             try{
                 Subject subject = SecurityUtils.getSubject();
 
+
                 UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username, password);
                 subject.login(usernamePasswordToken);
 
+                log.info("subject:{}",subject.getPrincipal());
+
                 QueryWrapper<User> queryWrapper = new QueryWrapper<>();
                 user = userService.getOne(queryWrapper.eq("username",username));
+                UserBO userBO = BeanUtil.copyProperties(user, UserBO.class);
+                userBO.setAccessToken(JwtUtil.genAccessToken(username));
+
+                redisUtil.set(username,userBO,USERBO_IN_REDIS_EXPIRATION);
 
 
-                return new Response(StatusCode.OK.setMsg("登陆成功"),user);
+                return new Response(StatusCode.OK.setMsg("登陆成功"),userBO);
 
             }
             //不应该分开提示，提高安全性
@@ -96,5 +117,47 @@ public class LoginController {
             return new Response(StatusCode.ERROR.set("A015",e.getMessage()),null);
         }
 
+    }
+
+    @PostMapping("/loginByMail")
+    public Response loginByMail(@RequestBody @Validated MailLoginToken mailLoginToken) {
+        String mailAddress = mailLoginToken.getMailAddress();
+        String code = mailLoginToken.getCode();
+        log.info("mailAddress:{}",mailAddress);
+        log.info("code:{}",code);
+
+        return userService.loginByMail(mailAddress,code);
+
+    }
+
+    @PostMapping("/registerByMail")
+    public Response registerByMail(@RequestBody @Valid MailRegisterToken mailRegisterToken){
+        String mailAddress = mailRegisterToken.getMailAddress();
+        String username = mailRegisterToken.getUsername();
+        String code = mailRegisterToken.getCode();
+
+        return userService.registerByMail(mailAddress,username,code);
+
+
+    }
+
+
+    //TODO 发邮件速度慢，考虑异步
+    @GetMapping({"/login/verifyCode/{mailAddress}","/register/verifyCode/{mailAddress}"})
+    public Response sendVerifyCode(@PathVariable String mailAddress, HttpServletRequest request){
+        String servletPath = request.getServletPath();
+        String loginOrRegister = servletPath.split("//")[1];
+        return userService.sendVerifyCode(mailAddress,loginOrRegister);
+    }
+
+    @GetMapping("/test/aaa/bbb")
+    public Response test1(HttpServletRequest request){
+        log.info(request.getContextPath());
+        return new Response(OK,null);
+    }
+
+    @GetMapping("/test")
+    public Response test(){
+        return new Response(OK,null);
     }
 }

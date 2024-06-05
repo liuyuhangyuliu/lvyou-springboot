@@ -25,6 +25,14 @@ public enum StatusCode {
     public static final String EXPIRED_ACCESS_TOKEN = "A016";
     public static final String UNSUPPORTED_TOKEN = "A017";
     public static final String BAD_SIGNATURE_TOKEN = "A018";
+    public static final String UNRECONGNIZED_PAYLOAD_USERNAME = "A019";
+    public static final String REFRESH_ACCESS_TOKEN = "A020";
+    public static final String ACCOUNT_NOT_FOUND_DURING_LOGIN = "A021";
+    public static final String VERIFY_CODE_EXPIRED = "A022";
+    public static final String INCORRECT_VERIFY_CODE = "A023";
+    public static final String ACCOUNT_EXISTS_DURING_REGISTER = "A024";
+    public static final String TABLE_FIELD_IS_EMPTY = "A025";
+
     private String code;
 
     private String msg;

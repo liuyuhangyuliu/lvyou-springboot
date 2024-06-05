@@ -22,7 +22,8 @@ spring:
     password: 111111
   devtools:
     restart:
-      enabled: true
+      enabled: false
+      additional-paths: src/main/java
 management:
   endpoints:
     web:
@@ -31,5 +32,7 @@ management:
 
 jwt:
   secret: lvyou_springboot_by_liuyuhang_2021113276
-  access_expiration: 1800000  #半小时
-  refresh_expiration: 604800000 #一周
+  access_expiration: 1800  #半小时
+  refresh_expiration: 604800 #一周
+  userBO_in_Redis_expiration: 604800
+  verify_code_expiration: 180

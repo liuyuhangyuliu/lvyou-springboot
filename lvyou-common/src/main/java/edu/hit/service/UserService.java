@@ -12,4 +12,10 @@ public interface UserService extends IService<User> {
 
     User findByUserName(String username);
 
+    public Response sendVerifyCode(String mailAddress,String loginOrRegister);
+
+    Response loginByMail(String mailAddress,String code);
+
+    public Response registerByMail(String mailAddress, String verifyCode, String username);
+
 }

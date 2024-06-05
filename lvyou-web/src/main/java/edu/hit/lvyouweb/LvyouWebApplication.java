@@ -3,11 +3,13 @@ package edu.hit.lvyouweb;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "edu.hit")
+@ServletComponentScan(basePackages = "edu.hit.filter")
 @MapperScan(basePackages = "edu.hit.mapper")
 public class LvyouWebApplication {
 

@@ -3,6 +3,8 @@ package edu.hit.config;
 
 import edu.hit.customRealm.PasswordRealm;
 
+import edu.hit.filter.TokenFilter;
+import javax.servlet.Filter;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.realm.Realm;
@@ -15,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Configuration
@@ -34,8 +33,9 @@ public class ShiroConfig {
         //给filter设置安全管理器
         shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager());
 
+
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        map.put("/api/user/login","anon");
+        map.put("/api/user/**","authc");
 
         //默认认证界面路径---当认证不通过时跳转
         shiroFilterFactoryBean.setLoginUrl("/api/user/login");

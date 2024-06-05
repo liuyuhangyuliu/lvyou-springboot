@@ -20,11 +20,11 @@ class LvyouWebApplicationTests {
     public void JwtUtilTest(){
         //System.out.println(JwtUtil.getSecret());
         String token = JwtUtil.genAccessToken("lyh");
-        Claims claims = JwtUtil.parsePayload(token);
-        for(String key:claims.keySet()){
-            System.out.println(key + ":" + claims.get(key));
-        }
-        System.out.println();
+//        Claims claims = JwtUtil.parsePayload(token);
+//        for(String key:claims.keySet()){
+//            System.out.println(key + ":" + claims.get(key));
+//        }
+        System.out.println(JwtUtil.parsePayload(token).get("username"));
     }
 
 }

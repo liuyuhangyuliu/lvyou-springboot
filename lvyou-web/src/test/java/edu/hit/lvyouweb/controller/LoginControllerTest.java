@@ -1,21 +1,37 @@
 package edu.hit.lvyouweb.controller;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.hit.entity.User;
+import edu.hit.entity.UserBO;
 import edu.hit.mapper.UserMapper;
+import edu.hit.service.UserService;
+import edu.hit.utils.token.MailLoginToken;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Slf4j
 @ActiveProfiles("test")
 class LoginControllerTest {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserService userService;
 
     private User user = new User();
 
@@ -27,5 +43,31 @@ class LoginControllerTest {
     @Test
     public void insertTest(){
         userMapper.insert(user);
+    }
+
+    @Test
+    public void beanCopyTest(){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        user = userService.getOne(queryWrapper.eq("username","admin"));
+        UserBO userBO = BeanUtil.copyProperties(user, UserBO.class,"accessToken");
+        //System.out.println(userBO.getUsername());
+        userBO.setAccessToken("aaa");
+        System.out.println(JSONUtil.toJsonStr(userBO));
+    }
+
+    @Test
+    public void sendMailTest(){
+        userService.sendVerifyCode("2196933343@qq.com","login");
+    }
+
+    @Test
+    public void splitTest(){
+        String path = "/login/verifyCode/{mailAddress}";
+        System.out.println(path.split("/")[1]);
+    }
+
+
+    @AfterEach
+    void tearDown() {
     }
 }
