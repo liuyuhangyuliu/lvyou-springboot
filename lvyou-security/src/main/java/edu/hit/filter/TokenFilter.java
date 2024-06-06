@@ -2,7 +2,9 @@ package edu.hit.filter;
 
 import cn.hutool.json.JSONUtil;
 import edu.hit.entity.User;
+import edu.hit.entity.UserBO;
 import edu.hit.utils.*;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -37,7 +39,7 @@ public class TokenFilter extends OncePerRequestFilter {
         String token = request.getHeader("Authorization");
         Subject subject = SecurityUtils.getSubject();
         log.info("subject:{}",subject.getPrincipal());
-        String username = "";
+
 
         response.setContentType("application/json;charset=UTF-8");
 
@@ -46,13 +48,17 @@ public class TokenFilter extends OncePerRequestFilter {
             return;
         }else{
             try{
-
+                String username = "";
                 username = (String) JwtUtil.parsePayload(token).get("username");
                 log.info("username:{}",username);
+                request.setAttribute("username",username);
                 filterChain.doFilter(request,response);
             }catch (ExpiredJwtException expiredJwtException){
 
-                User user = (User)redisUtil.get(username);
+                Claims claims = expiredJwtException.getClaims();
+                String username = (String) claims.get("username");
+                log.info("username:{}",username);
+                UserBO user = (UserBO)redisUtil.get(username);
 
                 if(user != null){
                     String accessToken = JwtUtil.genAccessToken(username);

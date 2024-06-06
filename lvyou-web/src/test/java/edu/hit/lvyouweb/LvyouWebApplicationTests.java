@@ -19,7 +19,7 @@ class LvyouWebApplicationTests {
     @Test
     public void JwtUtilTest(){
         //System.out.println(JwtUtil.getSecret());
-        String token = JwtUtil.genAccessToken("lyh");
+        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwianRpIjoiNmYxYzgyOGYtZTE0Ni00MTA1LTljZmYtZjhhNjJiMWVkNjYzIiwiZXhwIjoxNzE3NTg0NzU4LCJpYXQiOjE3MTc1ODI5NTgsImlzcyI6ImxpdXl1aGFuZyJ9.q3pwh3J7c9LaCtk2jBK1XolyrbVJtqRGIW9WyLJRfuQ";
 //        Claims claims = JwtUtil.parsePayload(token);
 //        for(String key:claims.keySet()){
 //            System.out.println(key + ":" + claims.get(key));

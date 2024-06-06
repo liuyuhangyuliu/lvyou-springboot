@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * The type Jwt util.
- */
 //注册组件
 @Data
 @Slf4j
@@ -51,13 +48,7 @@ public class JwtUtil {
 
 
     //private static SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes());
-/**
-* secretKey不能提出来字段，secret是Value注入的，时机是什么，反正这里初始化secretKey时secret一定是null，
- *     抛异常，最后导致error creating bean
- *     这是最上边的异常，我一直被这个吸引注意力
- *     实际上应该关注最下面的 看caused by cant invoke getBytes 因为nullpointerexception
- */
-    public static String genAccessToken(String username) {
+public static String genAccessToken(String username) {
         // 令牌id
         String uuid = UUID.randomUUID().toString();
         Date exprireDate = Date.from(Instant.now().plusSeconds(access_expiration));
@@ -82,17 +73,15 @@ public class JwtUtil {
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()), Jwts.SIG.HS256)
                 .compact();
     }
-    /**
-     * 解析token
-     * @param token token
-     * @return Jws<Claims>
-     */
     public static Jws<Claims> parseClaim(String token) {
+
         return Jwts.parser()
                 .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseSignedClaims(token);
     }
+
+
 
     public static JwsHeader parseHeader(String token) {
         return parseClaim(token).getHeader();

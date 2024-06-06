@@ -157,7 +157,9 @@ public class LoginController {
     }
 
     @GetMapping("/test")
-    public Response test(){
+    public Response test(HttpServletRequest request){
+        log.info("get username:{}",(String)request.getAttribute("username"));
+
         return new Response(OK,null);
     }
 }
