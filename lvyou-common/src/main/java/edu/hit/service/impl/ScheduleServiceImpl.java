@@ -9,9 +9,11 @@ import edu.hit.entity.Schedule;
 import edu.hit.entity.ScheduleVO;
 import edu.hit.service.ScheduleService;
 import edu.hit.mapper.ScheduleMapper;
+import edu.hit.service.UserService;
 import edu.hit.utils.Response;
 import edu.hit.utils.StatusCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,6 +29,9 @@ import java.util.List;
 public class ScheduleServiceImpl extends ServiceImpl<ScheduleMapper, Schedule>
     implements ScheduleService{
 
+    @Autowired
+    private UserService userService;
+
 
     @Override
     public Response getLimitedSchedules() {
@@ -39,7 +44,9 @@ public class ScheduleServiceImpl extends ServiceImpl<ScheduleMapper, Schedule>
 //        log.info((String)jsonObject.get("image1_url"));
         List<ScheduleVO> voList = new ArrayList<>();
         for (Schedule s:list){
-            voList.add(BeanUtil.copyProperties(s, ScheduleVO.class));
+            ScheduleVO scheduleVO = BeanUtil.copyProperties(s, ScheduleVO.class);
+            scheduleVO.setUserBO(userService.getUserBOById(s.getCreatedBy()));
+            voList.add(scheduleVO);
         }
         return new Response(StatusCode.OK,voList);
     }

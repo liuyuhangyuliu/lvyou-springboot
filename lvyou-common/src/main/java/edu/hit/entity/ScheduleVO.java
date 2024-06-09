@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Data
 public class ScheduleVO {
 
+    private UserBO userBO;
+
     private Integer scheduleId;
 
     private String destination;

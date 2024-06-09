@@ -8,13 +8,14 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import edu.hit.enums.JoinRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * @TableName join
  */
-@TableName(value ="join")
+@TableName(value ="join_in")
 @Data
 @AllArgsConstructor
 public class Join implements Serializable {
@@ -23,7 +24,7 @@ public class Join implements Serializable {
 
     private Integer scheduleId;
 
-    private String role;
+    private JoinRole role;
 
     private LocalDateTime joinAt;
 

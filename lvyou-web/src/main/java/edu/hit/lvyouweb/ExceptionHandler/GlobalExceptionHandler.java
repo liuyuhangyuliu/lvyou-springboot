@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.sql.SQLException;
+
 import static edu.hit.utils.StatusCode.*;
 
 @RestControllerAdvice
@@ -29,6 +32,11 @@ public class GlobalExceptionHandler {
         return new Response(StatusCode.ERROR.set(e.getCode(), e.getMsg()), null);
     }
 
+    @ExceptionHandler(SQLException.class)
+    public Response sqlExceptionHandler(SQLException e){
+        log.error(e.getMessage());
+        return new Response(ERROR.set(SQLEXCEPTION,e.getMessage()),null);
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
      public Response methodArgumentNotValidException(MethodArgumentNotValidException e){
         log.debug(e.getMessage());

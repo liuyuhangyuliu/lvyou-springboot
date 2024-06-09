@@ -1,6 +1,9 @@
 package edu.hit.lvyouweb.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.extra.mail.MailAccount;
+import cn.hutool.extra.mail.MailUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.hit.entity.User;
@@ -64,6 +67,18 @@ class LoginControllerTest {
     public void splitTest(){
         String path = "/login/verifyCode/{mailAddress}";
         System.out.println(path.split("/")[1]);
+    }
+
+    @Test
+    public void sendMail(){
+        MailAccount account = new MailAccount();
+        account.setHost("smtp.qq.com");
+        account.setPort(25);
+        account.setAuth(true);
+        account.setFrom("2196933343@qq.com");
+        account.setUser("2196933343@qq.com");
+        account.setPass("ydzmtksdtmjeeaac"); //密码
+        MailUtil.send(account, CollUtil.newArrayList("2196933343@qq.com"), "测试", "邮件来自Hutool测试", false);
     }
 
 

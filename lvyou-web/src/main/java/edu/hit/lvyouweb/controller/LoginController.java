@@ -3,6 +3,7 @@ package edu.hit.lvyouweb.controller;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.hit.utils.*;
 import edu.hit.entity.User;
@@ -10,9 +11,14 @@ import edu.hit.entity.UserBO;
 import edu.hit.service.UserService;
 import edu.hit.utils.token.MailLoginToken;
 import edu.hit.utils.token.MailRegisterToken;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -34,8 +40,10 @@ import java.util.HashMap;
 import static edu.hit.utils.StatusCode.*;
 
 @Slf4j
+@CrossOrigin(originPatterns = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/user")
+@Tag(name ="登录注册接口")
 public class LoginController {
 
     @Value("${jwt.userBO_in_Redis_expiration}")
@@ -48,14 +56,16 @@ public class LoginController {
     private RedisUtil redisUtil;
 
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "000",description = "登陆成功"),
+            @ApiResponse(responseCode = "000",description = "登录成功"),
             @ApiResponse(responseCode = "A011",description = "未找到用户名或密码不匹配"),
             @ApiResponse(responseCode = "A012",description = "其他认证错误"),
 
     })
     @PostMapping("/login")
     //TODO 后端参数的校验
-    public Response login(@RequestBody HashMap<String, String> params){
+    @Operation(summary = "用户名登录")
+    @Parameters(@Parameter(name = "params",description = "用户名密码json",in = ParameterIn.DEFAULT))
+    public Response login(@RequestBody  HashMap<String, String> params){
         String username = params.get("username");
         String password = params.get("password");
 
@@ -107,6 +117,7 @@ public class LoginController {
             @ApiResponse(responseCode = "A015",description = "注册新用户失败")
     })
     @PostMapping("/register")
+    @Operation(summary = "用户名密码注册")
     public Response register(@RequestBody HashMap<String, String> params){
         String username = params.get("username");
         String password = params.get("password");
@@ -120,7 +131,9 @@ public class LoginController {
     }
 
     @PostMapping("/loginByMail")
-    public Response loginByMail(@RequestBody @Validated MailLoginToken mailLoginToken) {
+    @Operation(summary = "邮箱验证码登录")
+    @Parameters(@Parameter(name = "mailLoginToken",description = "邮箱验证码json",in = ParameterIn.DEFAULT))
+    public Response loginByMail(@RequestBody @Validated  MailLoginToken mailLoginToken) {
         String mailAddress = mailLoginToken.getMailAddress();
         String code = mailLoginToken.getCode();
         log.info("mailAddress:{}",mailAddress);
@@ -130,6 +143,7 @@ public class LoginController {
 
     }
 
+    @Operation(summary = "用户名邮箱验证码登录")
     @PostMapping("/registerByMail")
     public Response registerByMail(@RequestBody @Valid MailRegisterToken mailRegisterToken){
         String mailAddress = mailRegisterToken.getMailAddress();
@@ -143,13 +157,17 @@ public class LoginController {
 
 
     //TODO 发邮件速度慢，考虑异步
+    @Operation(summary = "发送验证码")
     @GetMapping({"/login/verifyCode/{mailAddress}","/register/verifyCode/{mailAddress}"})
+    @Parameters(@Parameter(name = "mailAddress",description = "邮箱地址",in = ParameterIn.PATH))
     public Response sendVerifyCode(@PathVariable String mailAddress, HttpServletRequest request){
         String servletPath = request.getServletPath();
-        String loginOrRegister = servletPath.split("//")[1];
+        //System.out.println(servletPath);
+        String loginOrRegister = servletPath.split("/")[1];
         return userService.sendVerifyCode(mailAddress,loginOrRegister);
     }
 
+    @Operation(summary = "测试")
     @GetMapping("/test/aaa/bbb")
     public Response test1(HttpServletRequest request){
         log.info(request.getContextPath());

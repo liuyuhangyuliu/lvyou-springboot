@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+
+import edu.hit.enums.ScheduleState;
 import lombok.Data;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
@@ -42,6 +44,14 @@ public class Schedule implements Serializable {
     private String details;
 
     private String images;
+
+    private Integer maxNumber;
+
+    private Integer currentNumber;
+
+    private ScheduleState state;
+
+    private Integer createdBy;
 
     private static final long serialVersionUID = 1L;
 }

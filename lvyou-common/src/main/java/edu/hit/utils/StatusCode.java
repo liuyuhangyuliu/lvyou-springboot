@@ -33,6 +33,8 @@ public enum StatusCode {
     public static final String ACCOUNT_EXISTS_DURING_REGISTER = "A024";
     public static final String TABLE_FIELD_IS_EMPTY = "A025";
 
+    public static final String SQLEXCEPTION = "B001";
+
     private String code;
 
     private String msg;

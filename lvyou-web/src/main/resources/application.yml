@@ -36,3 +36,8 @@ jwt:
   refresh_expiration: 604800 #一周
   userBO_in_Redis_expiration: 604800
   verify_code_expiration: 180
+server:
+  port: 8081
+logging:
+  level:
+    web: debug

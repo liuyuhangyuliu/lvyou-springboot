@@ -1,4 +1,4 @@
-package edu.hit.entity;
+package edu.hit.enums;
 
 public enum JoinRole {
     ADMIN,

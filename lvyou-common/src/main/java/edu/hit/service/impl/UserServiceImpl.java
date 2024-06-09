@@ -1,7 +1,9 @@
 package edu.hit.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.extra.mail.MailAccount;
 import cn.hutool.extra.mail.MailUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -78,6 +80,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return userMapper.selectOne(new QueryWrapper<User>().eq("username",username));
     }
 
+    @Override
+    public UserBO getUserBOById(Integer id) {
+        User user = getById(id);
+        return BeanUtil.copyProperties(user,UserBO.class);
+    }
+
     public User findByColumn(String column,String value){
         return userMapper.selectOne(new QueryWrapper<User>().eq(column,value));
     }
@@ -86,6 +94,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public Response sendVerifyCode(String mailAddress,String loginOrRegister){
 
+        //邮箱重复引起selectOne->findByColumn异常
         User user = findByColumn("email", mailAddress);
         if(user == null && loginOrRegister.equals("login")){
             return new Response(ERROR.set(ACCOUNT_NOT_FOUND_DURING_LOGIN,"account not found by email"),null);
@@ -97,7 +106,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         String code = RandomUtil.randomString(4);
         String content = "您正在登录驴友辅助系统，验证码为【" + code + "】,有效时长3分钟";
-        MailUtil.sendText(mailAddress,"【驴友辅助系统】",content);
+
+        MailAccount account = new MailAccount();
+        account.setHost("smtp.qq.com");
+        account.setPort(25);
+        account.setAuth(true);
+        account.setFrom("2196933343@qq.com");
+        account.setUser("2196933343@qq.com");
+        account.setPass("ydzmtksdtmjeeaac"); //密码
+        MailUtil.send(account, CollUtil.newArrayList("2196933343@qq.com"), "测试", content, false);
+        //MailUtil.sendText(mailAddress,"【驴友辅助系统】",content);
         redisUtil.set(mailAddress,code,verify_code_expiration);
         return new Response(StatusCode.OK,null);
     }
