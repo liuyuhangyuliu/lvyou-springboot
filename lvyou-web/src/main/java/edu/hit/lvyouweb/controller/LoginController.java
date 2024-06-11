@@ -90,7 +90,7 @@ public class LoginController {
                 redisUtil.set(username,userBO,USERBO_IN_REDIS_EXPIRATION);
 
 
-                return new Response(StatusCode.OK.setMsg("登陆成功"),userBO);
+                return new Response(StatusCode.OK.set("000","登陆成功"),userBO);
 
             }
             //不应该分开提示，提高安全性
@@ -165,6 +165,18 @@ public class LoginController {
         //System.out.println(servletPath);
         String loginOrRegister = servletPath.split("/")[1];
         return userService.sendVerifyCode(mailAddress,loginOrRegister);
+    }
+
+    @Operation(summary = "退出登录")
+    @GetMapping("/logout")
+    public Response logout(HttpServletRequest request){
+        String username = (String)request.getAttribute("username");
+        redisUtil.remove(username);
+        Subject subject = SecurityUtils.getSubject();
+        if(subject != null){
+            subject.logout();
+        }
+        return new Response(StatusCode.OK.set("000","成功退出登录"),null);
     }
 
     @Operation(summary = "测试")

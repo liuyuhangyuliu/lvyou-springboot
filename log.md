@@ -38,3 +38,12 @@ controller里必须传httpsession,response header里才有jsessionid
 - 2024年6月3日
  遇到一个比较复杂的问题，出现在JwtUtil里，我想用@value注解读application.yml的值到secret和过期时间里，
 他们都是静态变量，具体参见代码注释
+
+
+- 2024年6月11日
+前后端分离还要解决预检请求的问题，针对OPTIONS请求，
+这期间还解决了一个问题，是这样的，token过期了，收到refresh token的响应，code是a020,因为我前端还没写怎么处理refreshtoken
+我就直接退出登录然后重新登陆，想获取新的token，然后我就登录但是没跳转到主页，我一看响应，原来code是A020，我就百思不得其解，
+a020(tokenfilter)怎么会影响到logincontroller，还怀疑是不是预检请求搞的鬼，后来才发现是login方法里我返回的是StatusCode.OK.setMsg("登陆成功”)，
+我没设置code，而在此之前的请求经过tokenfilter返回的是OK.set("A020","token expired return refresh token"),
+我的问题就在于我把枚举当成了对象，以为每个地方的OK都是一个新的初始化过的对象

@@ -10,6 +10,7 @@ import edu.hit.entity.User;
 import edu.hit.entity.UserBO;
 import edu.hit.mapper.UserMapper;
 import edu.hit.service.UserService;
+import edu.hit.utils.StatusCode;
 import edu.hit.utils.token.MailLoginToken;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +82,11 @@ class LoginControllerTest {
         MailUtil.send(account, CollUtil.newArrayList("2196933343@qq.com"), "测试", "邮件来自Hutool测试", false);
     }
 
+    @Test
+    public void enumTest(){
+        StatusCode.OK.setMsg("msg");
+        System.out.println(StatusCode.OK.getCode());
+    }
 
     @AfterEach
     void tearDown() {
