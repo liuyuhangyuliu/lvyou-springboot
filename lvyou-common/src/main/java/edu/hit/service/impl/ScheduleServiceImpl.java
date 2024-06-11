@@ -48,7 +48,7 @@ public class ScheduleServiceImpl extends ServiceImpl<ScheduleMapper, Schedule>
             scheduleVO.setUserBO(userService.getUserBOById(s.getCreatedBy()));
             voList.add(scheduleVO);
         }
-        return new Response(StatusCode.OK,voList);
+        return new Response(StatusCode.OK.set("000","SUCCESS"),voList);
     }
 }
 

@@ -4,15 +4,11 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.extra.mail.MailAccount;
-import cn.hutool.extra.mail.MailUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import edu.hit.entity.UserBO;
-import edu.hit.utils.JwtUtil;
-import edu.hit.utils.RedisUtil;
-import edu.hit.utils.Response;
-import edu.hit.utils.StatusCode;
+import edu.hit.utils.*;
 import edu.hit.mapper.UserMapper;
 import edu.hit.service.UserService;
 import edu.hit.entity.User;
@@ -107,17 +103,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String code = RandomUtil.randomString(4);
         String content = "您正在登录驴友辅助系统，验证码为【" + code + "】,有效时长3分钟";
 
-        MailAccount account = new MailAccount();
-        account.setHost("smtp.qq.com");
-        account.setPort(25);
-        account.setAuth(true);
-        account.setFrom("2196933343@qq.com");
-        account.setUser("2196933343@qq.com");
-        account.setPass("ydzmtksdtmjeeaac"); //密码
-        MailUtil.send(account, CollUtil.newArrayList("2196933343@qq.com"), "测试", content, false);
+        MailUtil.sendMail(content,mailAddress);
         //MailUtil.sendText(mailAddress,"【驴友辅助系统】",content);
         redisUtil.set(mailAddress,code,verify_code_expiration);
-        return new Response(StatusCode.OK,null);
+        return new Response(StatusCode.OK.set("000","发送验证码成功"),null);
     }
 
     @Override
@@ -136,7 +125,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             User user = findByColumn("email",mailAddress);
             UserBO userBO = BeanUtil.copyProperties(user, UserBO.class);
             userBO.setAccessToken(JwtUtil.genAccessToken(user.getUsername()));
-            return new Response(OK,userBO);
+            return new Response(OK.set("000","登陆成功"),userBO);
         }else{
             return new Response(ERROR.set(INCORRECT_VERIFY_CODE,"incorrect verify code"),null);
         }

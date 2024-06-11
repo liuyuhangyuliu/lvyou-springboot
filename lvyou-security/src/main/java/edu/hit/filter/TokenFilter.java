@@ -28,7 +28,7 @@ import static edu.hit.utils.StatusCode.*;
 
 
 @Slf4j
-@WebFilter(urlPatterns = {"/api/user/test","/api/schedule"})
+@WebFilter(urlPatterns = {"/api/user/logout","/api/schedule"})
 public class TokenFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -56,7 +56,7 @@ public class TokenFilter extends OncePerRequestFilter {
         //而且不知道为什么判断条件写request.getMethod() == "OPTIONS"就不行
         String method = request.getMethod();
         if(method.equals("OPTIONS")){
-
+        log.debug("放行预检请求");
             return ;
         }
 

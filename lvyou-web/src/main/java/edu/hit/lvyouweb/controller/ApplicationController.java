@@ -46,7 +46,7 @@ public class ApplicationController {
         LocalDateTime now = LocalDateTime.now();
         Application application = new Application(scheduleId, uid, now);
         applicationService.save(application);
-        return new Response(StatusCode.OK,application);
+        return new Response(StatusCode.OK.set("000","提交申请成功"),application);
     }
 
     @Operation(summary = "管理员同意加入行程申请")
@@ -56,7 +56,7 @@ public class ApplicationController {
 
         application.setApproval(true);
         applicationService.updateById(application);
-        return new Response(StatusCode.OK,application);
+        return new Response(StatusCode.OK.set("000","同意申请成功"),application);
     }
 
 

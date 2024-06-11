@@ -50,7 +50,7 @@ public class ScheduleController {
     @GetMapping("/{scheduleId}")
     @Parameters(@Parameter(name = "sceduleId",description = "行程id",in = ParameterIn.PATH))
     public Response showScheduleDetail(@PathVariable  Integer scheduleId){
-        return new Response(StatusCode.OK,scheduleService.getById(scheduleId));
+        return new Response(StatusCode.OK.set("000","获取行程详情成功"),scheduleService.getById(scheduleId));
     }
 
     @Operation(summary = "创建行程")
@@ -72,7 +72,7 @@ public class ScheduleController {
 
 
 
-        return new Response(StatusCode.OK,null);
+        return new Response(StatusCode.OK.set("000","创建行程成功"),null);
     }
 
 //    @GetMapping()
