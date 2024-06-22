@@ -1,0 +1,57 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    #不用写驱动类名，因为java spi
+    url: jdbc:mysql://localhost:3306/hello?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 111111
+
+---
+spring:
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      #TODO 前端要检测文件大小
+#  config:
+#    activate:
+#      on-profile: test
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    url: jdbc:mysql://localhost:3306/hello?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+    username: root
+#    password: 111111
+  devtools:
+    restart:
+      enabled: false
+      additional-paths: src/main/java
+management:
+  endpoints:
+    web:
+      exposure:
+        include: beans
+
+jwt:
+  secret: lvyou_springboot_by_liuyuhang_2021113276
+  access_expiration: 1800  #半小时
+  refresh_expiration: 604800 #一周
+  userBO_in_Redis_expiration: 604800
+  verify_code_expiration: 180
+server:
+  port: 8081
+logging:
+  level:
+    web: debug
+aliyun:
+  oss:
+    endpoint: http://oss-cn-beijing.aliyuncs.com
+    accessKeyId: LTAI5tQVGzLR9wwnN3jQtuE8
+    accessKeySecret: oazm3KzRcJifd4vdgKSk7TvXwlQ8xJ
+    bucketName: lvyou-oss-bucket
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
