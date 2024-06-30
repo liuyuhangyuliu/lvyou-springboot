@@ -49,10 +49,9 @@ logging:
 aliyun:
   oss:
     endpoint: http://oss-cn-beijing.aliyuncs.com
-    accessKeyId: LTAI5tQVGzLR9wwnN3jQtuE8
-    accessKeySecret: oazm3KzRcJifd4vdgKSk7TvXwlQ8xJ
-    bucketName: lvyou-oss-bucket
-
+    accessKeyId: *
+    accessKeySecret: *
+    bucketName: *
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
