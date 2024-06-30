@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-@ComponentScan(basePackages = "edu.hit.lvyoubackend")
 @ServletComponentScan(basePackages = "edu.hit.lvyoubackend.filter")
 @MapperScan(basePackages = "edu.hit.lvyoubackend.mapper")
 public class LvyouBackendApplication {

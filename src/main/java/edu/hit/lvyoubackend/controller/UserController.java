@@ -28,7 +28,7 @@ public class UserController {
     public Response getProfile(@PathVariable String username){
         return new Response(StatusCode.OK.set("000","获得userBO"),userService.getUserBOByUsername(username));
     }
-    @GetMapping("/user/{query}")
+    @GetMapping("/query/{query}")
     public Response getUsersByQuery(@PathVariable String query){
         List<User> list = userService.list(new QueryWrapper<User>()
                 .select("DISTINCT uid,username,email")

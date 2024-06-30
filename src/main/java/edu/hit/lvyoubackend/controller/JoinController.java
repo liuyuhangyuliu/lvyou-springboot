@@ -3,8 +3,11 @@ package edu.hit.lvyoubackend.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 
+import edu.hit.lvyoubackend.entity.Application;
 import edu.hit.lvyoubackend.entity.Join;
+import edu.hit.lvyoubackend.entity.Schedule;
 import edu.hit.lvyoubackend.enums.JoinRole;
+import edu.hit.lvyoubackend.service.ApplicationService;
 import edu.hit.lvyoubackend.service.JoinService;
 import edu.hit.lvyoubackend.service.ScheduleService;
 import edu.hit.lvyoubackend.service.UserService;
@@ -14,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import edu.hit.lvyoubackend.enums.*;
 
@@ -34,6 +38,10 @@ public class JoinController {
     @Autowired
     private ScheduleService scheduleService;
 
+    @Autowired
+    private ApplicationService applicationService;
+
+    @Transactional
     @Operation(summary = "管理员将用户加入到队伍中")
     @PostMapping()
     public Response joinSchedule(@RequestBody HashMap<String,String> map){
@@ -43,6 +51,11 @@ public class JoinController {
         Integer uid = userService.getUserBOByUsername(username).getUid().intValue();
         String title = scheduleService.getScheduleVObyId(scheduleId).getTitle();
         joinService.save(new Join(uid,scheduleId, JoinRole.USER,title, LocalDateTime.now()));
+
+        scheduleService.update(
+                new UpdateWrapper<Schedule>()
+                        .eq("schedule_id", scheduleId)
+                        .setSql("current_number = current_number + 1"));
         return new Response(StatusCode.OK.set("000","加入成员成功"),null);
     }
 
@@ -54,11 +67,19 @@ public class JoinController {
         return new Response(StatusCode.OK.set("000","将用户设置为管理员"),null);
     }
 
+    @Transactional
     @Operation(summary = "移除成员")
     @DeleteMapping("/member")
     public Response removeMember(@RequestParam String username,@RequestParam Integer scheduleId){
         Integer uid = userService.getUserBOByUsername(username).getUid().intValue();
+        //删除相关的加入队伍的记录
         joinService.remove(new QueryWrapper<Join>().eq("uid",uid).eq("schedule_id",scheduleId));
+        //删除相关的申请记录
+        applicationService.remove(new QueryWrapper<Application>().eq("uid",uid).eq("schedule_id",scheduleId));
+        scheduleService.update(
+                new UpdateWrapper<Schedule>()
+                        .eq("schedule_id", scheduleId)
+                        .setSql("current_number = current_number - 1"));
         return new Response(StatusCode.OK.set("000","将成员从行程中移除"),null);
     }
 }

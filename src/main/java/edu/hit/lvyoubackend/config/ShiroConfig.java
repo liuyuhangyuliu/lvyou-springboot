@@ -33,12 +33,6 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager());
 
 
-        LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        map.put("/api/user/**","authc");
-
-        //默认认证界面路径---当认证不通过时跳转
-        shiroFilterFactoryBean.setLoginUrl("/api/user/login");
-        shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
 
         return shiroFilterFactoryBean;
     }

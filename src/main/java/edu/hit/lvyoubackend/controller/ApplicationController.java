@@ -2,6 +2,7 @@ package edu.hit.lvyoubackend.controller;
 
 import cn.hutool.json.JSONObject;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.hit.lvyoubackend.entity.Application;
 import edu.hit.lvyoubackend.entity.Join;
@@ -86,7 +87,12 @@ public class ApplicationController {
 
         Application application = new Application(uid,scheduleId, now,new JSONObject(map),scheduleTitle);
         application.setState(ApplicationState.UNCHECK);
-        applicationService.save(application);
+        if(applicationService.exists(new QueryWrapper<Application>().eq("uid",uid).eq("schedule_id",scheduleId))){
+            applicationService.update(new UpdateWrapper<Application>().eq("uid",uid).eq("schedule_id",scheduleId).set("state",ApplicationState.UNCHECK));
+        }else{
+            applicationService.save(application);
+        }
+
         return new Response(StatusCode.OK.set("000","提交申请成功"),application);
     }
 

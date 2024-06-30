@@ -57,6 +57,8 @@ public class LoginController {
     @Autowired
     private RedisUtil redisUtil;
 
+
+
     @ApiResponses(value = {
             @ApiResponse(responseCode = "000",description = "登录成功"),
             @ApiResponse(responseCode = "A011",description = "未找到用户名或密码不匹配"),
@@ -151,12 +153,12 @@ public class LoginController {
         String mailAddress = mailRegisterToken.getMailAddress();
         String username = mailRegisterToken.getUsername();
         String code = mailRegisterToken.getCode();
+        log.info("get code:{}",code);
 
-        return userService.registerByMail(mailAddress,username,code);
+        return userService.registerByMail(mailAddress,code,username);
 
 
     }
-
 
     //TODO 发邮件速度慢，考虑异步
     @Operation(summary = "发送验证码")
@@ -165,9 +167,12 @@ public class LoginController {
     public Response sendVerifyCode(@PathVariable String mailAddress, HttpServletRequest request){
         String servletPath = request.getServletPath();
         //System.out.println(servletPath);
-        String loginOrRegister = servletPath.split("/")[1];
+        String loginOrRegister = servletPath.split("/")[3];
+        log.info("loginOrRegister:{}",loginOrRegister);
         return userService.sendVerifyCode(mailAddress,loginOrRegister);
     }
+
+
 
     @Operation(summary = "退出登录")
     @GetMapping("/logout")

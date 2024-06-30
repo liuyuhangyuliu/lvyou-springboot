@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 
@@ -31,11 +32,13 @@ import static edu.hit.lvyoubackend.utils.StatusCode.*;
 
 
 @Slf4j
-@WebFilter(urlPatterns = {"/api/user/logout","/api/schedule/*"})
+
+@WebFilter(urlPatterns = {"/api/user/logout","/api/schedule/*"},filterName = "tokenFilter")
 public class TokenFilter extends OncePerRequestFilter {
 
+
     @Autowired
-    private RedisUtil redisUtil;
+    private  RedisUtil redisUtil ;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, ServletException {
@@ -43,6 +46,7 @@ public class TokenFilter extends OncePerRequestFilter {
         String token = request.getHeader("Authorization");
         Subject subject = SecurityUtils.getSubject();
         //log.info("subject:{}",subject.getPrincipal());
+        log.info("token:{}",token);
 
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
@@ -101,6 +105,7 @@ public class TokenFilter extends OncePerRequestFilter {
                     return;
                 }
 
+                //FIXME: 应该返回异常信息
             } catch (MalformedJwtException | SignatureException | IllegalArgumentException e) {
 
                 filterChain.doFilter(request,response);

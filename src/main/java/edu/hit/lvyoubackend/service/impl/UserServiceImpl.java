@@ -10,6 +10,7 @@ import edu.hit.lvyoubackend.entity.UserBO;
 import edu.hit.lvyoubackend.mapper.UserMapper;
 import edu.hit.lvyoubackend.service.UserService;
 import edu.hit.lvyoubackend.utils.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import static edu.hit.lvyoubackend.utils.StatusCode.*;
 
-
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
@@ -42,10 +43,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return new Response(StatusCode.ERROR.set("A014","用户名已存在"),null);
         }
 
-        String ss = RandomUtil.randomString(6);
-        user.setSalt(ss);
-        Md5Hash md5Hash = new Md5Hash(user.getPassword(), ss, 1024);
-        user.setPassword(md5Hash.toHex());
+        //FIXME: 为了避免用户名邮箱验证码注册没有密码产生nullpointerexception，加上判断
+        if(user.getUsername() != null){
+            String ss = RandomUtil.randomString(6);
+            user.setSalt(ss);
+            Md5Hash md5Hash = new Md5Hash(user.getPassword(), ss, 1024);
+            user.setPassword(md5Hash.toHex());
+        }
+
 
 
         int insert = 0;
@@ -61,7 +66,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
             redisUtil.set(user.getUsername(), userBO,USERBO_IN_REDIS_EXPIRATION);
 
-            return new Response(StatusCode.OK.setMsg("创建新用户成功"),userBO);
+            return new Response(StatusCode.OK.set("000","创建新用户成功"),userBO);
         }else{
             return new Response(StatusCode.ERROR.set("A015","创建新用户失败"),null);
         }
@@ -140,7 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public Response registerByMail(String mailAddress, String verifyCode, String username) {
         String code = (String)redisUtil.get(mailAddress);
-
+        log.info("code in redis:{}",code);
         if(code == null){
             return new Response(ERROR.set(VERIFY_CODE_EXPIRED,"verify code is expired"),null);
         }
@@ -150,7 +155,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         if(verifyCode.equals(code)){
 
-            return register(new User().setEmail(mailAddress));
+            return register(new User().setEmail(mailAddress).setUsername(username));
 
 
         }else{
